@@ -1,3 +1,4 @@
+use headers::{Authorization, HeaderMapExt};
 use hyper::body::HttpBody;
 use hyper::{Body, Client, Method, Request, Uri};
 use serde_json::json;
@@ -5,7 +6,9 @@ use tokio::io::{stdout, AsyncWriteExt};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let req = Request::builder()
+    let basic = Authorization::basic("Aladdin", "open sesame");
+
+    let mut req = Request::builder()
         .method(Method::POST)
         .uri("http://httpbin.org/post")
         .header("content-type", "application/json")
@@ -137,6 +140,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             })
             .to_string(),
         ))?;
+
+    let headers = req.headers_mut();
+    headers.typed_insert(basic);
 
     let client = Client::new();
 
